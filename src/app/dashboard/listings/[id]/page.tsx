@@ -158,7 +158,7 @@ export default function ListingDetailPage() {
                 <p className="font-medium text-gray-900">{listing.owner_name}</p>
                 <div className="flex items-center gap-1 text-yellow-500 text-sm">
                   <Star size={13} fill="currentColor" />
-                  <span>{listing.owner_rating.toFixed(1)}</span>
+                  <span>{(listing.owner_rating ?? 0).toFixed(1)}</span>
                 </div>
               </div>
             </div>
