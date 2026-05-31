@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Search, SlidersHorizontal, MapPin, Wifi, Car, Plus } from 'lucide-react'
+import { Search, SlidersHorizontal, MapPin, Wifi, Car, Plus, Home, Star, X } from 'lucide-react'
 import Link from 'next/link'
 import { listingApi } from '@/lib/api'
 import { Listing } from '@/types'
@@ -16,123 +16,241 @@ export default function ListingsPage() {
   const [filters, setFilters] = useState({ city: '', min_rent: '', max_rent: '', furnished: '' })
   const [showFilters, setShowFilters] = useState(false)
 
+  const hasFilters = Object.values(filters).some(Boolean)
+
   const fetchListings = async () => {
     setLoading(true)
     try {
       const params = { search, ...Object.fromEntries(Object.entries(filters).filter(([, v]) => v)) }
       const res = await listingApi.list(params)
-      setListings(res.data.results)
-    } catch { toast.error('Failed to load listings') }
-    finally { setLoading(false) }
+      setListings(res.data.results || [])
+    } catch {
+      toast.error('Failed to load listings')
+    } finally {
+      setLoading(false)
+    }
   }
+
+  const clearFilters = () => setFilters({ city: '', min_rent: '', max_rent: '', furnished: '' })
 
   useEffect(() => { fetchListings() }, [search, filters])
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="animate-fade-in">
+
+      {/* Header */}
+      <div className="flex items-start justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Find a Room</h1>
-          <p className="text-gray-500 text-sm mt-1">{listings.length} listings available</p>
+          <h1 className="page-title">Find a Room</h1>
+          <p className="page-subtitle">
+            {loading ? 'Loading listings...' : `${listings.length} listing${listings.length !== 1 ? 's' : ''} available`}
+          </p>
         </div>
         {(user?.role === 'lister' || user?.role === 'both') && (
           <Link href="/dashboard/listings/new" className="btn-primary flex items-center gap-2">
-            <Plus size={16} /> Post a Room
+            <Plus size={16} />
+            Post a Room
           </Link>
         )}
       </div>
 
       {/* Search + Filter bar */}
-      <div className="card mb-6 p-4">
+      <div className="bg-white rounded-xl2 border border-gray-100 shadow-card p-4 mb-6">
         <div className="flex gap-3">
           <div className="flex-1 relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by title, area, city..."
-              className="input pl-9"
+              className="input pl-10"
             />
           </div>
-          <button onClick={() => setShowFilters(!showFilters)} className={cn('btn-secondary flex items-center gap-2', showFilters && 'border-primary-300 text-primary-600')}>
-            <SlidersHorizontal size={16} /> Filters
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className={cn(
+              'btn-secondary flex items-center gap-2 shrink-0',
+              showFilters && 'border-primary-300 text-primary-600 bg-primary-50'
+            )}
+          >
+            <SlidersHorizontal size={15} />
+            Filters
+            {hasFilters && (
+              <span className="w-5 h-5 bg-primary-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                {Object.values(filters).filter(Boolean).length}
+              </span>
+            )}
           </button>
         </div>
 
         {showFilters && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-gray-100">
-            <div>
-              <label className="label text-xs">City</label>
-              <input value={filters.city} onChange={(e) => setFilters({ ...filters, city: e.target.value })} placeholder="Nairobi" className="input text-sm" />
+          <div className="mt-4 pt-4 border-t border-gray-100">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div>
+                <label className="label text-xs">City</label>
+                <input
+                  value={filters.city}
+                  onChange={(e) => setFilters({ ...filters, city: e.target.value })}
+                  placeholder="Nairobi"
+                  className="input text-sm"
+                />
+              </div>
+              <div>
+                <label className="label text-xs">Min rent (KES)</label>
+                <input
+                  value={filters.min_rent}
+                  onChange={(e) => setFilters({ ...filters, min_rent: e.target.value })}
+                  placeholder="5,000"
+                  className="input text-sm"
+                  type="number"
+                />
+              </div>
+              <div>
+                <label className="label text-xs">Max rent (KES)</label>
+                <input
+                  value={filters.max_rent}
+                  onChange={(e) => setFilters({ ...filters, max_rent: e.target.value })}
+                  placeholder="50,000"
+                  className="input text-sm"
+                  type="number"
+                />
+              </div>
+              <div>
+                <label className="label text-xs">Furnished</label>
+                <select
+                  value={filters.furnished}
+                  onChange={(e) => setFilters({ ...filters, furnished: e.target.value })}
+                  className="input text-sm"
+                >
+                  <option value="">Any</option>
+                  <option value="furnished">Furnished</option>
+                  <option value="semi">Semi-furnished</option>
+                  <option value="unfurnished">Unfurnished</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="label text-xs">Min rent (KES)</label>
-              <input value={filters.min_rent} onChange={(e) => setFilters({ ...filters, min_rent: e.target.value })} placeholder="5,000" className="input text-sm" type="number" />
-            </div>
-            <div>
-              <label className="label text-xs">Max rent (KES)</label>
-              <input value={filters.max_rent} onChange={(e) => setFilters({ ...filters, max_rent: e.target.value })} placeholder="50,000" className="input text-sm" type="number" />
-            </div>
-            <div>
-              <label className="label text-xs">Furnished</label>
-              <select value={filters.furnished} onChange={(e) => setFilters({ ...filters, furnished: e.target.value })} className="input text-sm">
-                <option value="">Any</option>
-                <option value="furnished">Furnished</option>
-                <option value="semi">Semi</option>
-                <option value="unfurnished">Unfurnished</option>
-              </select>
-            </div>
+            {hasFilters && (
+              <button
+                onClick={clearFilters}
+                className="mt-3 flex items-center gap-1.5 text-xs text-gray-500 hover:text-red-500 transition-colors font-medium"
+              >
+                <X size={13} /> Clear all filters
+              </button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Listing grid */}
+      {/* Loading skeletons */}
       {loading ? (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => <div key={i} className="card animate-pulse h-64" />)}
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-white rounded-xl2 border border-gray-100 overflow-hidden">
+              <div className="skeleton h-48 rounded-none" />
+              <div className="p-4 space-y-3">
+                <div className="skeleton h-4 w-3/4" />
+                <div className="skeleton h-3 w-1/2" />
+                <div className="skeleton h-4 w-1/3" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : listings.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
-          <Home size={48} className="mx-auto mb-4 opacity-30" />
-          <p className="font-medium">No listings found</p>
-          <p className="text-sm">Try adjusting your filters</p>
+        /* Empty state */
+        <div className="empty-state">
+          <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mb-5">
+            <Home size={36} className="text-gray-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">No listings found</h3>
+          <p className="text-sm text-gray-400 mb-6 max-w-xs">
+            {hasFilters ? 'Try adjusting your filters to see more results.' : 'No rooms are listed yet. Check back soon.'}
+          </p>
+          {hasFilters && (
+            <button onClick={clearFilters} className="btn-secondary">
+              Clear filters
+            </button>
+          )}
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        /* Listing grid */
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
           {listings.map((listing) => (
             <Link key={listing.id} href={`/dashboard/listings/${listing.id}`}>
-              <div className="card p-0 overflow-hidden hover:shadow-card-hover transition-shadow cursor-pointer group">
+              <div className="card-hover overflow-hidden group cursor-pointer">
+
                 {/* Photo */}
-                <div className="h-44 bg-gradient-to-br from-primary-100 to-primary-200 relative overflow-hidden">
-                  {listing.photos[0] ? (
-                    <img src={listing.photos[0].image_url} alt={listing.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <div className="h-48 bg-gradient-to-br from-primary-100 to-primary-200 relative overflow-hidden">
+                  {listing.photos?.[0] ? (
+                    <img
+                      src={listing.photos[0].image_url}
+                      alt={listing.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   ) : (
-                    <div className="flex items-center justify-center h-full text-4xl">🏠</div>
+                    <div className="flex items-center justify-center h-full">
+                      <Home size={40} className="text-primary-300" />
+                    </div>
                   )}
-                  <span className={cn('absolute top-3 right-3 badge', listing.furnished === 'furnished' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600')}>
-                    {listing.furnished}
-                  </span>
+
+                  {/* Badges */}
+                  <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
+                    <span className={cn(
+                      'badge text-xs',
+                      listing.furnished === 'furnished' ? 'badge-green' : 'badge-gray'
+                    )}>
+                      {listing.furnished === 'furnished' ? '✓ Furnished' : listing.furnished}
+                    </span>
+                    {listing.distance_km && (
+                      <span className="badge badge-blue">
+                        {listing.distance_km.toFixed(1)} km away
+                      </span>
+                    )}
+                  </div>
                 </div>
+
                 {/* Content */}
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 truncate">{listing.title}</h3>
-                  <div className="flex items-center gap-1 text-gray-500 text-sm mt-1">
-                    <MapPin size={13} />
-                    <span>{listing.area}, {listing.city}</span>
+                  <h3 className="font-semibold text-gray-900 truncate text-base mb-1">{listing.title}</h3>
+
+                  <div className="flex items-center gap-1.5 text-gray-500 text-sm mb-3">
+                    <MapPin size={13} className="text-primary-400 shrink-0" />
+                    <span className="truncate">{listing.area}, {listing.city}</span>
                   </div>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-primary-700 font-bold">{formatCurrency(listing.rent)}<span className="text-gray-400 font-normal text-xs">/mo</span></span>
-                    <div className="flex gap-2">
-                      {listing.has_wifi && <Wifi size={14} className="text-gray-400" />}
-                      {listing.has_parking && <Car size={14} className="text-gray-400" />}
+
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <span className="text-xl font-bold text-primary-700">
+                        {formatCurrency(listing.rent)}
+                      </span>
+                      <span className="text-gray-400 text-xs font-normal">/mo</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {listing.has_wifi && (
+                        <span className="text-gray-400 hover:text-primary-500 transition-colors" title="WiFi">
+                          <Wifi size={15} />
+                        </span>
+                      )}
+                      {listing.has_parking && (
+                        <span className="text-gray-400 hover:text-primary-500 transition-colors" title="Parking">
+                          <Car size={15} />
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                    <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 text-xs font-bold">
-                      {listing.owner_name[0]}
+
+                  {/* Owner row */}
+                  <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                    <div className="w-7 h-7 rounded-lg bg-primary-100 flex items-center justify-center text-primary-700 text-xs font-bold shrink-0">
+                      {listing.owner_name?.[0]?.toUpperCase() || '?'}
                     </div>
-                    <span className="text-xs text-gray-500">{listing.owner_name}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{timeAgo(listing.created_at)}</span>
+                    <span className="text-xs text-gray-600 font-medium truncate flex-1">{listing.owner_name}</span>
+                    {listing.owner_rating > 0 && (
+                      <span className="flex items-center gap-1 text-xs text-amber-600 font-semibold shrink-0">
+                        <Star size={11} fill="currentColor" />
+                        {listing.owner_rating.toFixed(1)}
+                      </span>
+                    )}
+                    <span className="text-xs text-gray-400 shrink-0">{timeAgo(listing.created_at)}</span>
                   </div>
                 </div>
               </div>
@@ -143,5 +261,3 @@ export default function ListingsPage() {
     </div>
   )
 }
-
-function Home(props: any) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg> }
