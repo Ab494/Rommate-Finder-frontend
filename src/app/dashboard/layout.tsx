@@ -51,7 +51,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         <div>
           <p className="font-bold text-white text-sm tracking-tight">Roommate Finder</p>
-          <p className="text-xs text-sidebar-text capitalize">{user?.role} account</p>
+          <p className="text-xs text-sidebar-text capitalize">{user?.role ? `${user.role} account` : 'My account'}</p>
         </div>
       </div>
 
