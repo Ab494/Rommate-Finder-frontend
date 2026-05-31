@@ -138,8 +138,8 @@ export default function AdminPage() {
                       <span className="badge bg-blue-50 text-blue-700 capitalize">{u.role}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`badge ${u.is_banned ? 'bg-red-50 text-red-700' : u.is_verified ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                        {u.is_banned ? 'Banned' : u.is_verified ? 'Verified' : 'Active'}
+                      <span className={`badge ${u.is_banned ? 'bg-red-50 text-red-700' : u.verification_status === 'verified' ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        {u.is_banned ? 'Banned' : u.verification_status === 'verified' ? 'Verified' : 'Active'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-gray-400 text-xs">{timeAgo(u.created_at)}</td>

@@ -91,8 +91,8 @@ export default function ProfilePage() {
             </div>
             <div className="flex items-center gap-1 text-yellow-500 mt-1 text-sm">
               <Star size={13} fill="currentColor" />
-              <span>{profile.average_rating.toFixed(1)}</span>
-              <span className="text-gray-400">({profile.total_reviews} reviews)</span>
+              <span>{(profile.average_rating ?? 0).toFixed(1)}</span>
+              <span className="text-gray-400">({profile.total_reviews ?? 0} reviews)</span>
             </div>
           </div>
         </div>
@@ -174,8 +174,8 @@ export default function ProfilePage() {
             <label className="label">Preferred roommate gender</label>
             <div className="flex gap-2 flex-wrap">
               {GENDER_PREF.map((opt) => (
-                <button key={opt.value} onClick={() => setPrefs({ ...prefs, gender_preference: opt.value })}
-                  className={`px-3 py-1.5 rounded-lg text-sm border transition-all ${prefs.gender_preference === opt.value ? 'bg-primary-600 text-white border-primary-600' : 'border-gray-200 text-gray-600 hover:border-primary-300'}`}>
+                <button key={opt.value} onClick={() => setPrefs({ ...prefs, preferred_gender: opt.value })}
+                  className={`px-3 py-1.5 rounded-lg text-sm border transition-all ${prefs.preferred_gender === opt.value ? 'bg-primary-600 text-white border-primary-600' : 'border-gray-200 text-gray-600 hover:border-primary-300'}`}>
                   {opt.label}
                 </button>
               ))}
@@ -210,8 +210,8 @@ export default function ProfilePage() {
             <label className="label">Noise level preference</label>
             <div className="flex gap-2 flex-wrap">
               {NOISE.map((opt) => (
-                <button key={opt.value} onClick={() => setPrefs({ ...prefs, noise_level: opt.value })}
-                  className={`px-3 py-1.5 rounded-lg text-sm border transition-all ${prefs.noise_level === opt.value ? 'bg-primary-600 text-white border-primary-600' : 'border-gray-200 text-gray-600 hover:border-primary-300'}`}>
+                <button key={opt.value} onClick={() => setPrefs({ ...prefs, noise_tolerance: opt.value })}
+                  className={`px-3 py-1.5 rounded-lg text-sm border transition-all ${prefs.noise_tolerance === opt.value ? 'bg-primary-600 text-white border-primary-600' : 'border-gray-200 text-gray-600 hover:border-primary-300'}`}>
                   {opt.label}
                 </button>
               ))}

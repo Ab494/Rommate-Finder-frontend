@@ -1,10 +1,11 @@
 export interface User {
   id: number
   email: string
-  phone: string
+  username: string
   role: 'seeker' | 'lister' | 'both'
-  is_verified: boolean
-  created_at: string
+  verification_status: 'unverified' | 'pending' | 'verified'
+  date_joined: string
+  is_staff?: boolean
 }
 
 export interface Profile {
@@ -12,33 +13,37 @@ export interface Profile {
   email: string
   role: string
   full_name: string
+  first_name: string
+  last_name: string
   bio: string
-  gender: string
-  age: number
   occupation: string
-  photo: string | null
+  profile_picture: string | null
   photo_url: string | null
   lat: number | null
   lng: number | null
   city: string
   area: string
-  average_rating: number
-  total_reviews: number
+  is_verified: boolean
+  is_complete: boolean
   created_at: string
+  // Legacy fields — kept for frontend compatibility
+  gender?: string
+  age?: number
+  average_rating?: number
+  total_reviews?: number
+  photo?: string | null
 }
 
 export interface Preference {
   min_budget: number
   max_budget: number
-  gender_preference: string
+  preferred_gender: string
   sleep_schedule: string
   cleanliness: string
-  noise_level: string
+  noise_tolerance: string
   smoking_ok: boolean
   pets_ok: boolean
   guests_ok: boolean
-  preferred_city: string
-  preferred_area: string
   max_distance_km: number
 }
 
