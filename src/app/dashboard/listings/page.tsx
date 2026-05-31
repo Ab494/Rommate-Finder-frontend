@@ -244,10 +244,10 @@ export default function ListingsPage() {
                       {listing.owner_name?.[0]?.toUpperCase() || '?'}
                     </div>
                     <span className="text-xs text-gray-600 font-medium truncate flex-1">{listing.owner_name}</span>
-                    {listing.owner_rating > 0 && (
+                    {(listing.owner_rating ?? 0) > 0 && (
                       <span className="flex items-center gap-1 text-xs text-amber-600 font-semibold shrink-0">
                         <Star size={11} fill="currentColor" />
-                        {listing.owner_rating.toFixed(1)}
+                        {(listing.owner_rating ?? 0).toFixed(1)}
                       </span>
                     )}
                     <span className="text-xs text-gray-400 shrink-0">{timeAgo(listing.created_at)}</span>
